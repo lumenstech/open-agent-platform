@@ -1,0 +1,26 @@
+services:
+  langflow:
+    image: langflowai/langflow:1.11.1
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:7860:7860"
+    environment:
+      LANGFLOW_HOST: "0.0.0.0"
+      LANGFLOW_PORT: "7860"
+      LANGFLOW_AUTO_LOGIN: "false"
+      LANGFLOW_ENABLE_SIGNUP: "false"
+      LANGFLOW_NEW_USER_IS_ACTIVE: "false"
+      LANGFLOW_ENABLE_SUPERUSER_CLI: "false"
+      LANGFLOW_OPEN_BROWSER: "false"
+      LANGFLOW_CONFIG_DIR: "/app/data"
+      LANGFLOW_DATABASE_URL: "${LANGFLOW_DATABASE_URL}"
+      LANGFLOW_SECRET_KEY: "${LANGFLOW_SECRET_KEY}"
+      LANGFLOW_SUPERUSER: "${LANGFLOW_SUPERUSER:-langflow-admin}"
+      LANGFLOW_SUPERUSER_PASSWORD: "${LANGFLOW_SUPERUSER_PASSWORD}"
+    volumes:
+      - langflow-data:/app/data
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  langflow-data:
