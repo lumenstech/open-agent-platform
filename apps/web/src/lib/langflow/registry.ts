@@ -19,6 +19,69 @@ export const langflowFlowKeys = [
 
 export type LangflowFlowKey = (typeof langflowFlowKeys)[number];
 
+export type LangflowFlowPolicy = {
+  maxInputChars: number;
+  allowSessionId: boolean;
+  executionClass: "prompt" | "web-research" | "product-tooling";
+  mutatesSystemOfRecord: false;
+  advisoryOnly?: boolean;
+};
+
+const defaultPolicy: LangflowFlowPolicy = {
+  maxInputChars: 128_000,
+  allowSessionId: true,
+  executionClass: "prompt",
+  mutatesSystemOfRecord: false,
+};
+
+const policyByFlowKey: Record<LangflowFlowKey, LangflowFlowPolicy> = {
+  "bidagent.opportunity-qualifier": defaultPolicy,
+  "bidagent.solicitation-reader": {
+    ...defaultPolicy,
+    maxInputChars: 200_000,
+  },
+  "bidagent.proposal-agent": {
+    ...defaultPolicy,
+    maxInputChars: 160_000,
+  },
+  "comp-crm.company-research": {
+    ...defaultPolicy,
+    executionClass: "web-research",
+  },
+  "comp-crm.lead-enrichment": defaultPolicy,
+  "comp-crm.opportunity-scoring": defaultPolicy,
+  "labsnet.test-classifier": defaultPolicy,
+  "labsnet.lab-router": {
+    ...defaultPolicy,
+    executionClass: "product-tooling",
+    advisoryOnly: true,
+  },
+  "labsnet.rfq-generator": defaultPolicy,
+  "propertygy.listing-enrichment": defaultPolicy,
+  "propertygy.buyer-agent": {
+    ...defaultPolicy,
+    executionClass: "product-tooling",
+  },
+  "receptionos.call-reasoning": defaultPolicy,
+  "receptionos.tool-router": {
+    ...defaultPolicy,
+    executionClass: "product-tooling",
+  },
+  "shared.web-research": {
+    ...defaultPolicy,
+    executionClass: "web-research",
+  },
+  "shared.document-rag": {
+    ...defaultPolicy,
+    executionClass: "product-tooling",
+    maxInputChars: 64_000,
+  },
+  "shared.company-intelligence": {
+    ...defaultPolicy,
+    executionClass: "web-research",
+  },
+};
+
 const envNameByFlowKey: Record<LangflowFlowKey, string> = {
   "bidagent.opportunity-qualifier": "LANGFLOW_FLOW_BIDAGENT_OPPORTUNITY_QUALIFIER",
   "bidagent.solicitation-reader": "LANGFLOW_FLOW_BIDAGENT_SOLICITATION_READER",
@@ -40,6 +103,10 @@ const envNameByFlowKey: Record<LangflowFlowKey, string> = {
 
 export function isLangflowFlowKey(value: string): value is LangflowFlowKey {
   return (langflowFlowKeys as readonly string[]).includes(value);
+}
+
+export function getLangflowFlowPolicy(flowKey: LangflowFlowKey): LangflowFlowPolicy {
+  return policyByFlowKey[flowKey];
 }
 
 export function getLangflowFlowId(flowKey: LangflowFlowKey): string | null {
