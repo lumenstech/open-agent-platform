@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import {
   getLangflowFlowId,
+  getLangflowFlowPolicy,
   isLangflowFlowKey,
 } from "@/lib/langflow/registry";
 
@@ -30,6 +31,24 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Unknown or missing flow" }, { status: 400 });
   }
 
+  if ("tweaks" in body) {
+    return Response.json({ error: "Caller-supplied tweaks are not allowed" }, { status: 400 });
+  }
+
+  const policy = getLangflowFlowPolicy(body.flow);
+  const inputValue = typeof body.input_value === "string" ? body.input_value : "";
+  if (inputValue.length > policy.maxInputChars) {
+    return Response.json(
+      { error: `Input exceeds ${policy.maxInputChars} characters for this flow` },
+      { status: 413 },
+    );
+  }
+
+  const sessionId = typeof body.session_id === "string" ? body.session_id.trim() : "";
+  if (sessionId && !policy.allowSessionId) {
+    return Response.json({ error: "Session IDs are not allowed for this flow" }, { status: 400 });
+  }
+
   const flowId = getLangflowFlowId(body.flow);
   if (!flowId) {
     return Response.json({ error: "Flow is not configured" }, { status: 503 });
@@ -48,11 +67,10 @@ export async function POST(req: NextRequest) {
     method: "POST",
     headers,
     body: JSON.stringify({
-      input_value: body.input_value ?? "",
-      input_type: body.input_type ?? "chat",
-      output_type: body.output_type ?? "chat",
-      ...(body.session_id ? { session_id: body.session_id } : {}),
-      ...(body.tweaks ? { tweaks: body.tweaks } : {}),
+      input_value: inputValue,
+      input_type: "chat",
+      output_type: "chat",
+      ...(sessionId ? { session_id: sessionId } : {}),
     }),
   });
 
@@ -61,6 +79,9 @@ export async function POST(req: NextRequest) {
 
   return new Response(responseBody, {
     status: upstream.status,
-    headers: { "content-type": contentType },
+    headers: {
+      "content-type": contentType,
+      "cache-control": "no-store",
+    },
   });
 }
