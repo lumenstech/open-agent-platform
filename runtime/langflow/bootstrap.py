@@ -19,7 +19,10 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent
-CONTRACTS_PATH = ROOT / "flow-contracts.json"
+CONTRACT_PATHS = [
+    ROOT / "flow-contracts.json",
+    ROOT / "guyana-flow-contracts.json",
+]
 
 
 def request_json(method: str, url: str, *, api_key: str | None = None, payload: Any = None) -> Any:
@@ -41,8 +44,36 @@ def request_json(method: str, url: str, *, api_key: str | None = None, payload: 
 
 
 def load_contracts() -> dict[str, Any]:
-    with CONTRACTS_PATH.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
+    catalogs: list[dict[str, Any]] = []
+    for path in CONTRACT_PATHS:
+        if not path.exists():
+            continue
+        with path.open("r", encoding="utf-8") as handle:
+            catalogs.append(json.load(handle))
+
+    if not catalogs:
+        raise RuntimeError("No Langflow contract catalogs found")
+
+    template = catalogs[0]["template"]
+    flows: list[dict[str, Any]] = []
+    seen_keys: set[str] = set()
+    seen_names: set[str] = set()
+
+    for catalog in catalogs:
+        if catalog.get("template") != template:
+            raise RuntimeError("All Langflow contract catalogs must use the same pinned starter template")
+        for contract in catalog.get("flows", []):
+            key = str(contract.get("key", ""))
+            name = str(contract.get("name", ""))
+            if not key or not name:
+                raise RuntimeError("Flow contract is missing key or name")
+            if key in seen_keys or name in seen_names:
+                raise RuntimeError(f"Duplicate Langflow contract detected: {key} / {name}")
+            seen_keys.add(key)
+            seen_names.add(name)
+            flows.append(contract)
+
+    return {"template": template, "flows": flows}
 
 
 def fetch_template(repository: str, tag: str, starter: str) -> dict[str, Any]:

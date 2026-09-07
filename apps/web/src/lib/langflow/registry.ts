@@ -5,6 +5,8 @@ export const langflowFlowKeys = [
   "comp-crm.company-research",
   "comp-crm.lead-enrichment",
   "comp-crm.opportunity-scoring",
+  "guyana.opportunity-scout",
+  "guyana.electrical-fit-qualifier",
   "labsnet.test-classifier",
   "labsnet.lab-router",
   "labsnet.rfq-generator",
@@ -50,6 +52,15 @@ const policyByFlowKey: Record<LangflowFlowKey, LangflowFlowPolicy> = {
   },
   "comp-crm.lead-enrichment": defaultPolicy,
   "comp-crm.opportunity-scoring": defaultPolicy,
+  "guyana.opportunity-scout": {
+    ...defaultPolicy,
+    executionClass: "web-research",
+  },
+  "guyana.electrical-fit-qualifier": {
+    ...defaultPolicy,
+    executionClass: "product-tooling",
+    advisoryOnly: true,
+  },
   "labsnet.test-classifier": defaultPolicy,
   "labsnet.lab-router": {
     ...defaultPolicy,
@@ -89,6 +100,8 @@ const envNameByFlowKey: Record<LangflowFlowKey, string> = {
   "comp-crm.company-research": "LANGFLOW_FLOW_COMP_CRM_COMPANY_RESEARCH",
   "comp-crm.lead-enrichment": "LANGFLOW_FLOW_COMP_CRM_LEAD_ENRICHMENT",
   "comp-crm.opportunity-scoring": "LANGFLOW_FLOW_COMP_CRM_OPPORTUNITY_SCORING",
+  "guyana.opportunity-scout": "LANGFLOW_FLOW_GUYANA_OPPORTUNITY_SCOUT",
+  "guyana.electrical-fit-qualifier": "LANGFLOW_FLOW_GUYANA_ELECTRICAL_FIT_QUALIFIER",
   "labsnet.test-classifier": "LANGFLOW_FLOW_LABSNET_TEST_CLASSIFIER",
   "labsnet.lab-router": "LANGFLOW_FLOW_LABSNET_LAB_ROUTER",
   "labsnet.rfq-generator": "LANGFLOW_FLOW_LABSNET_RFQ_GENERATOR",
