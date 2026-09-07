@@ -1,5 +1,7 @@
 export const langflowToolKeys = [
   "comp-crm.lookup-company",
+  "guyana.search-opportunities",
+  "guyana.lookup-electrical-profile",
   "labsnet.route-order",
   "propertygy.search-listings",
   "receptionos.lookup-context",
@@ -21,6 +23,20 @@ const toolConfig: Record<LangflowToolKey, ToolConfig> = {
     tokenEnv: "LANGFLOW_TOOL_COMP_CRM_TOKEN",
     mutation: false,
     description: "Read canonical CRM/company context through the Comp API.",
+  },
+  "guyana.search-opportunities": {
+    endpointEnv: "LANGFLOW_TOOL_GUYANA_SEARCH_OPPORTUNITIES_URL",
+    tokenEnv: "LANGFLOW_TOOL_GUYANA_TOKEN",
+    mutation: false,
+    description:
+      "Search approved Guyana procurement, project, subcontracting, partnership, and prospective-client opportunity sources without modifying the CRM.",
+  },
+  "guyana.lookup-electrical-profile": {
+    endpointEnv: "LANGFLOW_TOOL_GUYANA_ELECTRICAL_PROFILE_URL",
+    tokenEnv: "LANGFLOW_TOOL_GUYANA_TOKEN",
+    mutation: false,
+    description:
+      "Read the approved Guyana contractor capability profile, including electrical-license evidence and scope, without inventing license details.",
   },
   "labsnet.route-order": {
     endpointEnv: "LANGFLOW_TOOL_LABSNET_ROUTE_ORDER_URL",
